@@ -12,6 +12,3 @@ connmysql.connect(function(err) {
 });
 
 module.exports = connmysql; 
-/*
-hola
-*/
