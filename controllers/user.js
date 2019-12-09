@@ -21,8 +21,6 @@ function saveUser(req, res){
 	user.email = params.email;
 	user.role = 'ROLE_USER';
 	user.image = 'null';
-	/*
-	*/
 
 	if (params.password) {
 		//encriptar password y guardar
