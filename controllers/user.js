@@ -2,6 +2,13 @@
 var dbmysql = require('../routes/dbmysql');
 var bcrypt = require('bcrypt-nodejs');
 var User = require('../models/user');
+var jwt = require('../services/jwt');
+
+function pruebas(res, res){
+	res.status(200).send({
+		message: 'Probando una accion del conmtrolados de usuarios del api rest con Node y MongoDB'
+	});
+};
 
 
 function saveUser(req, res){
@@ -80,6 +87,9 @@ function loginUser(req, res){
 						//devolver datos de usuario logueado
 						if(params.gethash){
 							//devolver un token de jwt
+							res.status(200).send({
+								token: jwt.createToken(user)
+							});
 						}else{
 							res.status(200).send({user});
 						}
@@ -142,6 +152,7 @@ function loginUserMySql(req, res){
 }
 
 module.exports =  {
+	pruebas,
 	saveUser,
 	loginUser,
 	loginUserMySql
