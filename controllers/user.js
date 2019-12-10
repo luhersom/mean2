@@ -104,7 +104,7 @@ function loginUserMySql(req, res){
 	console.log(params)
 
 	// Inicio - Insert en Base de Datos MySQL
-	var sql = "select email from users where email = ?";
+	var sql = "select * from users where email = ?";
 		dbmysql.query(sql, [email], function (err, user) {
 			if (err){	
 				res.status(500).send({message: 'Error en la peticion'});
