@@ -1,4 +1,6 @@
 'user strict'
+var fs = require('fs');
+var path = require('path');
 var dbmysql = require('../routes/dbmysql');
 var bcrypt = require('bcrypt-nodejs');
 var User = require('../models/user');
@@ -13,10 +15,7 @@ function pruebas(res, res){
 
 function saveUser(req, res){
 	var user = new User();
-
 	var params =  req.body;
-
-	console.log(params);
 
 	user.name = params.name;
 	user.surname = params.surname;
@@ -46,9 +45,9 @@ function saveUser(req, res){
 								];
 									dbmysql.query(sql, [values], function (err, res) {
 										if (!err){
-											console.log("err");
+											//console.log("err");
 										}else{
-											console.log("good");	
+											//console.log("good");	
 										}
 									});
 									dbmysql.destroy();   
@@ -105,13 +104,11 @@ function loginUser(req, res){
 
 function loginUserMySql(req, res){
 	var params = req.body;
-
 	var email = params.email;
 	var password = params.password;
-
 	var contra ='';
 
-	console.log(params)
+	
 
 	// Inicio - Insert en Base de Datos MySQL
 	var sql = "select * from users where email = ?";
@@ -151,10 +148,70 @@ function loginUserMySql(req, res){
 		});
 }
 
+function updateUser(req, res){
+	var userId = req.params.id;
+	var update = req.body;
+
+	User.findByIdAndUpdate(userId, update, (err, userUpdated) => {
+		if(err){
+			res.status(500).send({message: 'Error al actulizar el usuario'});
+		}else{
+			if(!userUpdated){
+				res.status(404).send({message: 'No se ha podido actualizar el usuario '});
+			}else{
+				res.status(200).send({user: userUpdated});
+			}
+		}
+	});
+}
+
+function uploadImage(req, res){
+	var userId = req.params.id;
+	var file_name = 'no Subido...';
+
+	if(req.files){
+		var file_path = req.files.image.path;
+		var file_split = file_path.split('\\');
+		var file_name = file_split[2]; 
+		var ext_split = file_name.split('\.');
+		var file_ext = ext_split[1];
+		
+		if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'gif'){
+			User.findByIdAndUpdate(userId, {image: file_name}, (err, userUpdated) => {
+				if(!userUpdated){
+					res.status(404).send({message: 'No se ha podido actualizar el usuario '});
+				}else{
+					res.status(200).send({user: userUpdated});
+				}
+			});
+		}else{
+			res.status(200).send({message: 'Extension de la imagen no valida'});
+		}
+	}else{
+		res.status(200).send({message: 'No ha subido ninguna imagen...'});
+	}
+}
+
+function getImageFile(req, res){
+	var imageFile = req.params.imageFile;
+	var path_file = './uploads/users/'+imageFile;
+
+	fs.exists(path_file, function(exists){
+		if(exists){
+			res.sendFile(path.resolve(path_file));
+		}else{
+			res.status(200).send({message: 'No existe la imagen...'});
+		}
+	});
+}
+
 module.exports =  {
 	pruebas,
 	saveUser,
 	loginUser,
-	loginUserMySql
+	loginUserMySql,
+	updateUser,
+	uploadImage,
+	getImageFile
 }; 
 
